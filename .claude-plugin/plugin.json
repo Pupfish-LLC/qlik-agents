@@ -6,10 +6,7 @@
     "name": "Pupfish, LLC",
     "url": "https://pupfish.io"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Pupfish-LLC/qlik-agents"
-  },
+  "repository": "https://github.com/Pupfish-LLC/qlik-agents",
   "license": "Proprietary",
   "homepage": "https://github.com/Pupfish-LLC/qlik-agents"
 }
