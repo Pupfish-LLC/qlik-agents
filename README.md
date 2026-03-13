@@ -26,7 +26,7 @@ The pipeline produces artifacts organized by phase, written to an `artifacts/` d
 ## Installation
 
 ```bash
-claude plugin install pupfish/qlik-dev
+claude plugin install Pupfish-LLC/qlik-dev
 ```
 
 ## Getting Started
@@ -101,5 +101,5 @@ You don't interact with agents or skills directly. The orchestrator manages the 
 ## Author & License
 
 **Author:** Pupfish, LLC — [pupfish.io](https://pupfish.io)
-**Repository:** [github.com/pupfish/qlik-dev](https://github.com/pupfish/qlik-dev)
+**Repository:** [github.com/Pupfish-LLC/qlik-dev](https://github.com/Pupfish-LLC/qlik-dev)
 **License:** Proprietary — see [LICENSE](LICENSE)
