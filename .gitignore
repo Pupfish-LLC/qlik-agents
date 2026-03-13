@@ -17,5 +17,8 @@ node_modules/
 artifacts/
 inputs/
 
+# Claude Code local settings (machine-specific)
+.claude/
+
 # Test projects (local development only)
 test-project/

@@ -145,7 +145,7 @@ The Qlik Cloud MCP server (`qlik_*` tools) is optional. The framework works with
 
 ## Session Startup
 
-0. If no project structure exists, run /qlik-dev:qlik-project-scaffold to initialize the project.
+0. If no project structure exists, run /qlik-agents:qlik-project-scaffold to initialize the project.
 1. Read `.pipeline-state.json` to determine current phase and artifact status.
 2. If no state exists, begin at Phase 0.
 3. Check `inputs/` for user-provided materials.

@@ -1,4 +1,4 @@
-# qlik-dev
+# Qlik Agents
 
 A Claude Code plugin that runs a multi-agent development pipeline for Qlik Sense. You provide source materials and requirements. The pipeline produces production-grade load scripts, expressions, visualization specifications, QA reports, and documentation through a structured 9-phase workflow.
 
@@ -25,8 +25,11 @@ The pipeline produces artifacts organized by phase, written to an `artifacts/` d
 
 ## Installation
 
-```bash
-claude plugin install Pupfish-LLC/qlik-dev
+Add the Pupfish marketplace and install the plugin:
+
+```
+/plugin marketplace add Pupfish-LLC/claude-plugins
+/plugin install qlik-agents@pupfish
 ```
 
 ## Getting Started
@@ -35,7 +38,7 @@ claude plugin install Pupfish-LLC/qlik-dev
 
 2. Run the scaffold command to set up the directory structure:
    ```
-   /qlik-dev:qlik-project-scaffold
+   /qlik-agents:qlik-project-scaffold
    ```
    This creates `inputs/` subdirectories for your source materials and `artifacts/` directories where the pipeline writes its output.
 
@@ -101,5 +104,4 @@ You don't interact with agents or skills directly. The orchestrator manages the 
 ## Author & License
 
 **Author:** Pupfish, LLC — [pupfish.io](https://pupfish.io)
-**Repository:** [github.com/Pupfish-LLC/qlik-dev](https://github.com/Pupfish-LLC/qlik-dev)
 **License:** Proprietary — see [LICENSE](LICENSE)

@@ -137,7 +137,7 @@ Create the dependency tracking template:
 ## Notes
 
 - **Idempotent:** Safe to run multiple times. Existing files are preserved.
-- **Plugin-supplied:** Agents and skills are provided by the qlik-dev plugin. This skill only creates the project-specific directory structure.
+- **Plugin-supplied:** Agents and skills are provided by the qlik-agents plugin. This skill only creates the project-specific directory structure.
 - **Read-only inputs:** All materials in `inputs/` are read-only for agents during pipeline execution.
 - **Artifact evolution:** Agents write to `artifacts/` only. The orchestrator coordinates phase transitions and artifact updates.
 - **Field naming:** All field examples in scaffolded documentation follow entity-prefix dot notation (e.g., `[Customer.Status]`, `[Order.Amount]`).
