@@ -25,7 +25,15 @@ The pipeline produces artifacts organized by phase, written to an `artifacts/` d
 
 ## Installation
 
-Add the Pupfish marketplace and install the plugin:
+### From the Claude Code UI
+
+1. In Claude Code, click the **+** button for **More Options**, then click **Add plugins**.
+2. Go to the **Personal** tab.
+3. Click the **+** button and select **Add marketplace from GitHub**.
+4. Enter: `Pupfish-LLC/claude-plugins`
+5. Find **Qlik Agents** in the plugin list and install it.
+
+### From the command line
 
 ```
 /plugin marketplace add Pupfish-LLC/claude-plugins
