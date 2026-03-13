@@ -5,7 +5,7 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 permissionMode: acceptEdits
 maxTurns: 100
-skills: platform-conventions, source-profiler, qlik-naming-conventions, qlik-cloud-mcp
+skills: platform-conventions, source-profiler, qlik-naming-conventions, qlik-cloud-mcp, qlik-project-scaffold
 ---
 
 ## Role

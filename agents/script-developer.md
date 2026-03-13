@@ -5,7 +5,7 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 permissionMode: acceptEdits
 maxTurns: 80
-skills: qlik-naming-conventions, qlik-load-script, qlik-performance, platform-conventions
+skills: qlik-naming-conventions, qlik-load-script, qlik-performance, platform-conventions, qlik-security
 ---
 
 # script-developer Agent
