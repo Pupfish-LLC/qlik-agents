@@ -1,6 +1,8 @@
 ---
 name: orchestrator
+color: blue
 description: Project manager for the Qlik development pipeline. Coordinates seven specialized subagents across nine phases (platform context, requirements, source profiling, data architecture, script development, expressions, visualization, QA, documentation). Manages quality gates, execution validation, rework loops, and dependency tracking. Use this agent to run a complete Qlik Sense development project or resume an in-progress pipeline.
+tools: Agent, Read, Write, Edit, Glob, Grep
 model: inherit
 permissionMode: default
 maxTurns: 200

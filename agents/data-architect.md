@@ -1,5 +1,6 @@
 ---
 name: data-architect
+color: green
 description: Designs complete data architecture including app architecture strategy, star schema, ETL pipeline with layer boundaries, QVD layer strategy, cross-layer field mapping, and source architecture consumption patterns. Invoke when the project specification is approved and source profiling is complete. Use after Phase 1 gate passes and Phase 2 source profiling is available.
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet

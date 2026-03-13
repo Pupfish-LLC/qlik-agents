@@ -1,5 +1,6 @@
 ---
 name: doc-writer
+color: green
 description: Generates complete project documentation from all pipeline artifacts. Produces nine documents (README, data dictionary, technical specification, expression catalog, visualization guide, deployment runbook, user guide, change log, dependency tracker). Invoke after all Critical QA findings are resolved (Phase 7 gate passed). Ensures technical accuracy, audience calibration, and cross-document consistency.
 tools: Read, Write, Edit, Glob, Grep
 model: sonnet

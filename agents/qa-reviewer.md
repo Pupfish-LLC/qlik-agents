@@ -1,5 +1,6 @@
 ---
 name: qa-reviewer
+color: cyan
 description: Reviews all Qlik development artifacts against best practices, naming conventions, script quality, expression correctness, security, and cross-artifact consistency. Performs data quality validation when available. Invoked multiple times during pipeline for lightweight (Phase 3), script (Phase 4), expression (Phase 5), and comprehensive (Phase 7) reviews. Resume to verify fixes.
 tools: Read, Grep, Glob, Bash
 model: sonnet

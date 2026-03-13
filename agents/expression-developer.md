@@ -1,5 +1,6 @@
 ---
 name: expression-developer
+color: magenta
 description: Authors all Qlik Sense expressions including master measures, master dimensions, calculated dimensions, set analysis expressions, variable expressions, and complex aggregations. Produces expression catalog reference and runnable expression-variables.qvs file. Invoke after Phase 4 scripts complete. Resume when viz-architect reports expression gaps or execution validation reveals expression issues.
 tools: Read, Write, Edit, Glob, Grep
 model: sonnet

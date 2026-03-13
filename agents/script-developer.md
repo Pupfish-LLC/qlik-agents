@@ -1,5 +1,6 @@
 ---
 name: script-developer
+color: yellow
 description: Writes production-grade Qlik Sense load scripts (.qvs files) from the data architect's model specification. Handles extraction, transformation, QVD generation, incremental loads, master calendar, variables scaffold, section access scaffold, error handling, and diagnostics. Invoke after Phase 3 data model is approved. Resume with execution feedback for iterative fixes.
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet

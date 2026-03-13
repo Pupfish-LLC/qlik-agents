@@ -1,5 +1,6 @@
 ---
 name: viz-architect
+color: red
 description: Designs Qlik Sense sheet layouts, visualization selections, filter panes, navigation flow, and user experience. Produces sheet specifications, master item definitions, and manual build checklists. Reports expression gaps to orchestrator for iteration with expression-developer. Invoke after expression catalog is complete. Resume when expression gaps are filled.
 tools: Read, Write, Edit, Glob, Grep
 model: sonnet

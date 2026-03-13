@@ -1,5 +1,6 @@
 ---
 name: requirements-analyst
+color: cyan
 description: Conducts structured discovery for Qlik Sense projects. Handles Phase 0 (platform context ingestion from existing apps, scripts, and subroutine libraries) and Phase 1 (business requirements gathering, source system identification, security needs, ETL architecture preferences). Invoke for Phase 0 when inputs/ directory contains existing platform artifacts. Resume for Phase 1 after platform context is captured. Use proactively at project start.
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
