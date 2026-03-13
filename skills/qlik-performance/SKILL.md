@@ -1,10 +1,6 @@
 ---
 name: qlik-performance
-description: |
-  Performance optimization for Qlik Sense: three-metric framework (Base RAM, Peak RAM, Reload Time),
-  key encoding hierarchy, QVD optimized load rules, expression performance (If vs set analysis,
-  Aggr caution, master items for caching), memory choreography, and data reduction techniques.
-  Load when optimizing or reviewing performance-sensitive artifacts.
+description: "Performance optimization for Qlik Sense: three-metric framework (Base RAM, Peak RAM, Reload Time), key encoding hierarchy, QVD optimized load rules, expression performance (If vs set analysis, Aggr caution, master items for caching), memory choreography, and data reduction techniques. Load when optimizing or reviewing performance-sensitive artifacts."
 ---
 
 # Qlik Performance Optimization

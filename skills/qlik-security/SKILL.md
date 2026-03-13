@@ -1,9 +1,6 @@
 ---
 name: qlik-security
-description: |
-  Section access patterns, row-level security, data reduction, OMIT field usage,
-  hybrid security models, and Cloud vs. client-managed security differences. Use when
-  designing or reviewing security configurations.
+description: "Section access patterns, row-level security, data reduction, OMIT field usage, hybrid security models, and Cloud vs. client-managed security differences. Use when designing or reviewing security configurations."
 ---
 
 # Qlik Security

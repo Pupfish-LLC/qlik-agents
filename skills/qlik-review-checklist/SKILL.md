@@ -1,5 +1,5 @@
 ---
-name: QA Review Checklist for Qlik
+name: qlik-review-checklist
 description: Complete QA checklist used by the qa-reviewer agent for validating Qlik development artifacts. Covers data model integrity, naming convention compliance, script quality, expression correctness, security gaps, cross-artifact consistency, blocked dependency audit, and data quality validation. Also available for manual invocation outside the pipeline via /qlik-review-checklist.
 ---
 
