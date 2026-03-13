@@ -1,0 +1,214 @@
+// ============================================================
+// ERROR HANDLING AND LOGGING FRAMEWORK
+// ============================================================
+// Provides subroutines for error detection, logging, connection
+// testing, file existence checks, and graceful degradation.
+//
+// HOW TO ADAPT:
+// 1. Include this file at the start of your reload script:
+//    $(Must_Include=lib://Scripts/error-handling.qvs);
+// 2. Call LogMessage after significant operations.
+// 3. Call CheckError after database loads and critical operations.
+// 4. Call TestConnection before attempting database extracts.
+// 5. Adjust vLogQvdPath to your QVD storage location.
+// ============================================================
+
+// --- Configuration ---
+SET vLogQvdPath = 'lib://QVDs/Diagnostics/ReloadLog.qvd';
+SET vErrorMode = 1;  // 0=continue on error, 1=stop on error, 2=interactive (QlikView only; behaves as 1 in Qlik Sense)
+
+SET ErrorMode = $(vErrorMode);
+
+// --- Initialize log table ---
+[_ReloadLog]:
+LOAD * INLINE [
+    LogTimestamp, Severity, Phase, Message
+] (delimiter is ',');
+
+// ============================================================
+// SUB LogMessage: Append a message to the reload log
+// Parameters:
+//   vLogSeverity  - INFO, WARNING, ERROR, CRITICAL
+//   vLogPhase     - Script phase (Extract, Transform, Model, etc.)
+//   vLogMsg       - Message text
+// ============================================================
+SUB LogMessage(vLogSeverity, vLogPhase, vLogMsg)
+    LET vLogTimestamp = Timestamp(Now(), 'YYYY-MM-DD hh:mm:ss');
+
+    CONCATENATE([_ReloadLog])
+    LOAD
+        '$(vLogTimestamp)' AS LogTimestamp,
+        '$(vLogSeverity)'  AS Severity,
+        '$(vLogPhase)'     AS Phase,
+        '$(vLogMsg)'       AS Message
+    AUTOGENERATE 1;
+
+    // NOTE: If vLogMsg contains single quotes, the TRACE will break.
+    // Avoid passing user-derived strings with apostrophes directly.
+    // Use Replace(vLogMsg, '''', '') if needed before calling.
+    TRACE [$(vLogSeverity)] $(vLogPhase): $(vLogMsg);
+END SUB
+
+// ============================================================
+// SUB CheckError: Check ScriptErrorCount after an operation
+// Parameters:
+//   vCheckPhase      - Which phase we're in
+//   vCheckAction     - What we just did (e.g., "Load Orders from DB")
+//   vCheckCritical   - 1=stop on error, 0=warn and continue
+//   vPreErrorCount   - ScriptErrorCount captured BEFORE the operation
+//
+// WHY vPreErrorCount: ScriptErrorCount is cumulative across the
+// entire reload. If an earlier non-critical error incremented it,
+// checking "ScriptErrorCount > 0" would report failure for every
+// subsequent operation even if they all succeeded. Comparing
+// against the pre-operation count isolates this check to the
+// most recent operation only.
+// ============================================================
+SUB CheckError(vCheckPhase, vCheckAction, vCheckCritical, vPreErrorCount)
+    IF ScriptErrorCount > $(vPreErrorCount) THEN
+        LET vCheckErrorMsg = 'Failed: ' & '$(vCheckAction)' & ' | Error: ' & ScriptError;
+
+        IF $(vCheckCritical) = 1 THEN
+            CALL LogMessage('CRITICAL', '$(vCheckPhase)', '$(vCheckErrorMsg)');
+            CALL LogMessage('CRITICAL', '$(vCheckPhase)', 'Stopping reload due to critical error');
+
+            // Store log before exiting
+            IF NoOfRows('_ReloadLog') > 0 THEN
+                STORE [_ReloadLog] INTO [$(vLogQvdPath)] (qvd);
+            END IF
+
+            EXIT SCRIPT;
+        ELSE
+            CALL LogMessage('WARNING', '$(vCheckPhase)', '$(vCheckErrorMsg)');
+            CALL LogMessage('WARNING', '$(vCheckPhase)', 'Continuing despite error (non-critical)');
+        END IF
+    ELSE
+        CALL LogMessage('INFO', '$(vCheckPhase)', 'Success: $(vCheckAction)');
+    END IF
+END SUB
+
+// ============================================================
+// SUB TestConnection: Test a database connection before use
+// Parameters:
+//   vConnName     - Connection name (e.g., 'lib://MyDB')
+//   vConnLabel    - Friendly name for logging
+// Returns:
+//   Sets vConnectionOK to 1 (success) or 0 (failure)
+// ============================================================
+SUB TestConnection(vConnName, vConnLabel)
+    LET vConnectionOK = 0;
+    LET vPreTestErrors = ScriptErrorCount;
+
+    // LIB CONNECT TO targets subsequent SQL statements at this connection.
+    // Without it, SQL SELECT goes to whatever connection was last active.
+    LIB CONNECT TO [$(vConnName)];
+
+    [_ConnTest]:
+    SQL SELECT 1 AS _test_result;
+
+    IF ScriptErrorCount > $(vPreTestErrors) THEN
+        CALL LogMessage('ERROR', 'Connection', 'Cannot reach $(vConnLabel) via $(vConnName)');
+        LET vConnectionOK = 0;
+    ELSE
+        CALL LogMessage('INFO', 'Connection', '$(vConnLabel) connection OK');
+        LET vConnectionOK = 1;
+        DROP TABLE [_ConnTest];
+    END IF
+END SUB
+
+// ============================================================
+// SUB CheckFileExists: Check if a QVD/file exists
+// Parameters:
+//   vFilePath     - Full path including lib:// prefix
+//   vFileLabel    - Friendly name for logging
+// Returns:
+//   Sets vFileExists to 1 (exists) or 0 (does not exist)
+// ============================================================
+SUB CheckFileExists(vFilePath, vFileLabel)
+    IF NOT IsNull(FileTime('$(vFilePath)')) THEN
+        LET vFileExists = 1;
+        LET vFileTime = Timestamp(FileTime('$(vFilePath)'), 'YYYY-MM-DD hh:mm:ss');
+        CALL LogMessage('INFO', 'FileCheck', '$(vFileLabel) exists (last modified: $(vFileTime))');
+    ELSE
+        LET vFileExists = 0;
+        CALL LogMessage('WARNING', 'FileCheck', '$(vFileLabel) does not exist at $(vFilePath)');
+    END IF
+END SUB
+
+// ============================================================
+// SUB LogRowCount: Log the row count of a table
+// Parameters:
+//   vRCTable      - Table name
+//   vRCPhase      - Phase name for logging
+// ============================================================
+SUB LogRowCount(vRCTable, vRCPhase)
+    LET vRCCount = NoOfRows('$(vRCTable)');
+    CALL LogMessage('INFO', '$(vRCPhase)', '$(vRCTable): $(vRCCount) rows');
+END SUB
+
+// ============================================================
+// SUB GracefulFallback: Handle non-critical source unavailability
+// Parameters:
+//   vFBTable      - Expected table name
+//   vFBQvdPath    - Path to cached QVD (fallback)
+//   vFBPhase      - Phase for logging
+// Usage:
+//   Call after a failed non-critical extract. If the QVD exists,
+//   loads it as a fallback. If not, logs a warning and continues.
+// ============================================================
+SUB GracefulFallback(vFBTable, vFBQvdPath, vFBPhase)
+    // LIMITATION: LOAD * assumes the cached QVD schema matches what
+    // downstream scripts expect. If the source schema changed since the
+    // QVD was last written, field mismatches will cause silent errors.
+    // For critical tables, consider validating field presence after load.
+    IF NOT IsNull(FileTime('$(vFBQvdPath)')) THEN
+        CALL LogMessage('WARNING', '$(vFBPhase)', 'Using cached QVD for $(vFBTable)');
+        [$(vFBTable)]:
+        LOAD * FROM [$(vFBQvdPath)] (qvd);
+        CALL LogRowCount('$(vFBTable)', '$(vFBPhase)');
+    ELSE
+        CALL LogMessage('ERROR', '$(vFBPhase)', 'No cached QVD available for $(vFBTable) -- table will be empty');
+    END IF
+END SUB
+
+// ============================================================
+// SUB FinalizeLog: Store the log and clean up
+// Call this at the very end of the reload script.
+// ============================================================
+SUB FinalizeLog
+    LET vLogRows = NoOfRows('_ReloadLog');
+    IF $(vLogRows) > 0 THEN
+        STORE [_ReloadLog] INTO [$(vLogQvdPath)] (qvd);
+        TRACE Reload log stored: $(vLogRows) entries;
+    END IF
+    DROP TABLE [_ReloadLog];
+END SUB
+
+// ============================================================
+// USAGE EXAMPLE (uncomment and adapt):
+// ============================================================
+// // At script start (after including this file):
+// CALL LogMessage('INFO', 'Init', 'Reload started');
+//
+// // Before database extract:
+// CALL TestConnection('lib://MyDB', 'Source Database');
+// IF $(vConnectionOK) = 1 THEN
+//     LET vPreErrors = ScriptErrorCount;
+//     [Orders]:
+//     SQL SELECT * FROM orders;
+//     CALL CheckError('Extract', 'Load Orders from database', 1, vPreErrors);
+//     CALL LogRowCount('Orders', 'Extract');
+// ELSE
+//     CALL GracefulFallback('Orders', 'lib://QVDs/Orders.qvd', 'Extract');
+// END IF
+//
+// // Before QVD load:
+// CALL CheckFileExists('lib://QVDs/Customers.qvd', 'Customers QVD');
+// IF $(vFileExists) = 1 THEN
+//     [Customers]:
+//     LOAD * FROM [lib://QVDs/Customers.qvd] (qvd);
+// END IF
+//
+// // At script end:
+// CALL LogMessage('INFO', 'Complete', 'Reload finished successfully');
+// CALL FinalizeLog;

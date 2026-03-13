@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+.fuse_hidden*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+
+# Pipeline runtime (generated per-project, not part of plugin)
+.pipeline-state.json
+artifacts/
+inputs/
+
+# Test projects (local development only)
+test-project/

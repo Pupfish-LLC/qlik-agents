@@ -1,0 +1,151 @@
+// ============================================================
+// MASTER CALENDAR TEMPLATE
+// ============================================================
+// Generates a continuous date dimension with standard and
+// fiscal calendar fields. Derives date range from loaded data.
+//
+// DO NOT hard-code date ranges. Always derive from data.
+//
+// HOW TO ADAPT:
+// 1. Set vCalendarDateField to the date field in your fact table
+//    that should link to this calendar.
+// 2. Set vCalendarSourceTable to the table containing that field.
+// 3. Set vFiscalYearStartMonth if your fiscal year does not start
+//    in January (e.g., 7 for July fiscal year start).
+// 4. Rename output fields to match your naming conventions
+//    (default uses Calendar. prefix).
+// 5. Add custom date flags or periods as needed.
+//
+// PREREQUISITES:
+// - At least one table must already be loaded containing the
+//   date field referenced by vCalendarDateField.
+// - The date field must contain valid Qlik date serial numbers
+//   (use Date() or Num() during extraction if source is text).
+//
+// MULTIPLE DATE FIELDS:
+// If your model has multiple date fields (Order.Date, Ship.Date,
+// Invoice.Date), each must associate to the calendar. Two approaches:
+// A. Single calendar with one link field: Pick the primary date
+//    (e.g., Order.Date) as the calendar key. Other dates can only
+//    filter via set analysis: Sum({<[Ship.Date]={">=$(=Min(Calendar.Date))"}>} Amount)
+// B. Multiple calendars: Create separate calendar tables, each with
+//    its own prefixed fields (OrderCal.Year, ShipCal.Year). This
+//    enables direct filtering on any date but increases the data model.
+// Choose based on how users need to slice the data.
+// ============================================================
+
+// --- Configuration ---
+SET vCalendarDateField = 'Order.Date';          // The date field to link to
+SET vCalendarSourceTable = 'Orders';            // The table containing the date field
+SET vFiscalYearStartMonth = 1;                  // 1=Jan, 4=Apr, 7=Jul, 10=Oct
+
+// --- Derive date range from data ---
+// Uses RESIDENT against the source table to scope correctly.
+// FieldValue() operates across the entire symbol space (all tables
+// containing that field), which can return dates from unrelated tables.
+// RESIDENT Min/Max scopes to the specified table only.
+[_CalRange]:
+LOAD
+    Min([$(vCalendarDateField)]) AS MinDate,
+    Max([$(vCalendarDateField)]) AS MaxDate
+RESIDENT [$(vCalendarSourceTable)];
+
+LET vMinDate = Peek('MinDate', 0, '_CalRange');
+LET vMaxDate = Peek('MaxDate', 0, '_CalRange');
+DROP TABLE [_CalRange];
+
+// Validate date range
+IF IsNull($(vMinDate)) OR IsNull($(vMaxDate)) THEN
+    TRACE [ERROR] Cannot determine date range -- no dates loaded in $(vCalendarSourceTable).$(vCalendarDateField);
+    // Exit or skip calendar generation
+ELSE
+    TRACE Calendar date range: $(=Date($(vMinDate))) to $(=Date($(vMaxDate)));
+
+    // --- Generate calendar ---
+    [_TempCalendar]:
+    LOAD
+        Date($(vMinDate) + IterNo() - 1) AS _TempDate
+    AUTOGENERATE 1
+    WHILE $(vMinDate) + IterNo() - 1 <= $(vMaxDate);
+
+    // --- Build final calendar with all derived fields ---
+    [Calendar]:
+    LOAD
+        _TempDate                                                    AS [$(vCalendarDateField)],
+
+        // --- Standard calendar fields ---
+        Year(_TempDate)                                              AS [Calendar.Year],
+        Month(_TempDate)                                             AS [Calendar.MonthNum],
+        Dual(MonthName(_TempDate), Month(_TempDate))                 AS [Calendar.Month],
+        'Q' & Ceil(Month(_TempDate) / 3)                             AS [Calendar.Quarter],
+        Year(_TempDate) & '-Q' & Ceil(Month(_TempDate) / 3)         AS [Calendar.YearQuarter],
+        Date(MonthStart(_TempDate), 'YYYY-MM')                      AS [Calendar.YearMonth],
+        Week(_TempDate)                                              AS [Calendar.Week],
+        Year(_TempDate) & '-W' & Num(Week(_TempDate), '00')         AS [Calendar.YearWeek],
+        Day(_TempDate)                                               AS [Calendar.DayOfMonth],
+        WeekDay(_TempDate)                                           AS [Calendar.DayOfWeek],
+        DayNumberOfYear(_TempDate)                                   AS [Calendar.DayOfYear],
+
+        // --- Fiscal calendar fields ---
+        // Fiscal year: when FYStart > 1, months >= FYStart belong to next FY.
+        // Convention: FY2026 runs Jul 2025 - Jun 2026 when start=7.
+        // When FYStart=1, fiscal year = calendar year (the +1 offset is zero).
+        Year(_TempDate) + IF(Month(_TempDate) >= $(vFiscalYearStartMonth)
+                             AND $(vFiscalYearStartMonth) > 1, 1, 0)
+                                                                     AS [Calendar.FiscalYear],
+
+        Ceil((Month(_TempDate) - $(vFiscalYearStartMonth) + 1
+              + IF(Month(_TempDate) < $(vFiscalYearStartMonth), 12, 0)) / 3)
+                                                                     AS [Calendar.FiscalQuarter],
+
+        // Combined fiscal year-quarter (e.g., "FY2026-Q1")
+        'FY' & (Year(_TempDate) + IF(Month(_TempDate) >= $(vFiscalYearStartMonth)
+                                      AND $(vFiscalYearStartMonth) > 1, 1, 0))
+        & '-Q' & Ceil((Month(_TempDate) - $(vFiscalYearStartMonth) + 1
+                        + IF(Month(_TempDate) < $(vFiscalYearStartMonth), 12, 0)) / 3)
+                                                                     AS [Calendar.FiscalYearQuarter],
+
+        // --- Relative date flags ---
+        IF(MonthStart(_TempDate) = MonthStart(Today()), 1, 0)       AS [Calendar.IsCurrentMonth],
+        IF(QuarterStart(_TempDate) = QuarterStart(Today()), 1, 0)   AS [Calendar.IsCurrentQuarter],
+        IF(Year(_TempDate) = Year(Today()), 1, 0)                   AS [Calendar.IsCurrentYear],
+        IF(Year(_TempDate) = Year(Today()) - 1, 1, 0)               AS [Calendar.IsPriorYear],
+
+        // YTD: same year, day of year <= today's day of year
+        IF(Year(_TempDate) = Year(Today())
+           AND DayNumberOfYear(_TempDate) <= DayNumberOfYear(Today()), 1, 0)
+                                                                     AS [Calendar.IsYTD],
+
+        // Prior year YTD (for comparison)
+        IF(Year(_TempDate) = Year(Today()) - 1
+           AND DayNumberOfYear(_TempDate) <= DayNumberOfYear(Today()), 1, 0)
+                                                                     AS [Calendar.IsPriorYTD],
+
+        // Today flag (useful for visual highlighting)
+        IF(_TempDate = Today(), 1, 0)                               AS [Calendar.IsToday],
+
+        // Rolling 12 months: trailing 12 COMPLETE months, excluding current partial month.
+        // Change < MonthStart(Today()) to <= Today() to include the current partial month.
+        IF(_TempDate >= AddMonths(MonthStart(Today()), -12)
+           AND _TempDate < MonthStart(Today()), 1, 0)               AS [Calendar.IsRolling12],
+
+        // Rolling 12 months prior (for YoY comparison)
+        IF(_TempDate >= AddMonths(MonthStart(Today()), -24)
+           AND _TempDate < AddMonths(MonthStart(Today()), -12), 1, 0)
+                                                                     AS [Calendar.IsPriorRolling12]
+
+    RESIDENT [_TempCalendar];
+
+    DROP TABLE [_TempCalendar];
+
+    LET vCalendarRows = NoOfRows('Calendar');
+    TRACE Master calendar generated: $(vCalendarRows) rows;
+
+END IF
+
+// --- Cleanup configuration variables ---
+LET vMinDate = ;
+LET vMaxDate = ;
+LET vCalendarRows = ;
+// Keep vCalendarDateField, vCalendarSourceTable, vFiscalYearStartMonth
+// for documentation purposes

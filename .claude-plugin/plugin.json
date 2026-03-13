@@ -1,0 +1,15 @@
+{
+  "name": "qlik-dev",
+  "description": "AI-powered multi-agent development pipeline for Qlik Sense. Automates requirements gathering, data modeling, script generation, expression authoring, visualization design, QA review, and documentation through seven specialized subagents coordinated by an orchestrator.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Pupfish, LLC",
+    "url": "https://pupfish.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pupfish/qlik-dev"
+  },
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/pupfish/qlik-dev"
+}
