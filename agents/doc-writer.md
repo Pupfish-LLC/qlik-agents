@@ -6,7 +6,7 @@ tools: Read, Write, Edit, Glob, Grep
 model: sonnet
 permissionMode: acceptEdits
 maxTurns: 150
-skills: qlik-naming-conventions, qlik-data-modeling, qlik-expressions, qlik-load-script
+skills: qlik-naming-conventions, qlik-data-modeling, qlik-expressions, qlik-load-script, qlik-deploy
 ---
 
 # Doc-Writer Agent

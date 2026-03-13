@@ -104,7 +104,7 @@ Do not duplicate pipeline state, phase status, or artifact versions in auto memo
 | `expression-developer` | qlik-expressions, qlik-naming-conventions, qlik-performance, qlik-cloud-mcp |
 | `viz-architect` | qlik-visualization, qlik-naming-conventions, qlik-cloud-mcp |
 | `qa-reviewer` | qlik-review-checklist, qlik-naming-conventions, qlik-data-modeling, qlik-expressions, qlik-load-script, qlik-security, data-quality-validator, qlik-cloud-mcp |
-| `doc-writer` | qlik-naming-conventions, qlik-data-modeling, qlik-expressions, qlik-load-script |
+| `doc-writer` | qlik-naming-conventions, qlik-data-modeling, qlik-expressions, qlik-load-script, qlik-deploy |
 
 Note: The `qa-reviewer` has the heaviest skill load (8 skills). All skills listed in frontmatter are injected at invocation; the orchestrator cannot selectively load a subset per review pass.
 
