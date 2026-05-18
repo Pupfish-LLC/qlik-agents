@@ -1,5 +1,8 @@
 # Qlik Agents
 
+> [!NOTE]
+> **For a less regimented Qlik development workflow, see [qlik-toolkit](https://github.com/Pupfish-LLC/qlik-toolkit).** Install it to make Claude Code fluent in Qlik Sense for ad-hoc help and single-task delegation. No fixed pipeline, no approval gates, no commitment to a structured artifact set. Reach for `qlik-agents` (this plugin) when you specifically want the 9-phase pipeline from requirements through documentation.
+
 A Claude Code plugin that runs a multi-agent development pipeline for Qlik Sense. You provide source materials and requirements. The pipeline produces production-grade load scripts, expressions, visualization specifications, QA reports, and documentation through a structured 9-phase workflow.
 
 ## What You Get
