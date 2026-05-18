@@ -25,13 +25,13 @@ The pipeline produces artifacts organized by phase, written to an `artifacts/` d
 
 ## Installation
 
-### From the Claude Code UI
+### From the Claude Code desktop UI
 
-1. In Claude Code, click the **+** button for **More Options**, then click **Add plugins**.
-2. Go to the **Personal** tab.
-3. Click the **+** button and select **Add marketplace from GitHub**.
-4. Enter: `Pupfish-LLC/claude-plugins`
-5. Find **Qlik Agents** in the plugin list and install it.
+1. In the left sidebar under **Personal plugins**, click the **+** button.
+2. Choose **Create plugin → Add marketplace**.
+3. In the URL field, enter `Pupfish-LLC/claude-plugins`, then click **Sync**.
+4. Once the marketplace is synced, click the **+** button again and choose **Browse plugins**.
+5. Find **Qlik agents** and install it.
 
 ### From the command line
 
@@ -51,10 +51,10 @@ The pipeline produces artifacts organized by phase, written to an `artifacts/` d
    This creates `inputs/` subdirectories for your source materials and `artifacts/` directories where the pipeline writes its output.
 
 3. Place your source materials in the appropriate `inputs/` subdirectories:
-   - `inputs/source-documentation/` — connection specs, data dictionaries, platform docs
-   - `inputs/existing-apps/` — QVF exports, load scripts from brownfield apps
-   - `inputs/platform-libraries/` — shared includes, naming conventions, reference implementations
-   - `inputs/upstream-architecture/` — ER diagrams, data lineage, ETL architecture
+   - `inputs/source-documentation/`: connection specs, data dictionaries, platform docs
+   - `inputs/existing-apps/`: QVF exports, load scripts from brownfield apps
+   - `inputs/platform-libraries/`: shared includes, naming conventions, reference implementations
+   - `inputs/upstream-architecture/`: ER diagrams, data lineage, ETL architecture
 
 4. Start the pipeline. The orchestrator picks up from wherever you left off, or begins at Phase 0 for new projects.
 
@@ -105,11 +105,12 @@ The pipeline works without MCP. Source profiling falls back to manual templates,
 
 ## What's Under the Hood
 
-The plugin includes an orchestrator agent that coordinates seven specialized agents (requirements, data architecture, scripting, expressions, visualization, QA, documentation). Each agent carries practitioner-authored Qlik knowledge covering data modeling patterns, load script syntax, expression authoring, performance optimization, security, and naming conventions. A PostToolUse hook validates all generated .qvs files against common LLM failure patterns like SQL syntax in LOAD statements.
+The plugin includes an orchestrator agent that coordinates seven specialized agents (requirements, data architecture, scripting, expressions, visualization, QA, documentation). Each agent carries Qlik knowledge covering data modeling patterns, load script syntax, expression authoring, performance optimization, security, and naming conventions. A PostToolUse hook validates all generated .qvs files against common LLM failure patterns like SQL syntax in LOAD statements.
 
 You don't interact with agents or skills directly. The orchestrator manages the full workflow.
 
 ## Author & License
 
-**Author:** Pupfish, LLC — [pupfish.io](https://pupfish.io)
-**License:** Proprietary — see [LICENSE](LICENSE)
+Built by [Pupfish Analytics](https://pupfish.io). Part of the [Pupfish Claude Marketplace](https://github.com/Pupfish-LLC/claude-plugins).
+
+License: Proprietary. See [LICENSE](LICENSE).

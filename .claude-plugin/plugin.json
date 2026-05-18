@@ -1,9 +1,9 @@
 {
   "name": "qlik-agents",
-  "description": "Multi-agent development pipeline for Qlik Sense. 9-phase workflow from requirements through documentation, powered by practitioner-authored Qlik knowledge.",
+  "description": "A multi-agent development pipeline for Qlik Sense. 9-phase workflow from requirements through documentation. You provide source materials and requirements; the pipeline produces production-grade load scripts, expressions, visualization specs, QA reports, and documentation. Most Qlik developers will prefer qlik-toolkit for ad-hoc work.",
   "version": "0.1.0",
   "author": {
-    "name": "Pupfish, LLC",
+    "name": "Pupfish Analytics",
     "url": "https://pupfish.io"
   },
   "repository": "https://github.com/Pupfish-LLC/qlik-agents",
