@@ -186,7 +186,7 @@ Always guard date arithmetic with an explicit IsNull check:
 ```qlik
 // RIGHT -- explicit null guard:
 IF(IsNull(birth_date) OR birth_date > Today(), Null(),
-    Floor((Today() - birth_date) / 365.25)) AS [Patient.Age]
+    Age(Today(), birth_date)) AS [Patient.Age]
 ```
 
 ### Common Date Arithmetic Patterns with Guards
@@ -194,7 +194,7 @@ IF(IsNull(birth_date) OR birth_date > Today(), Null(),
 ```qlik
 // Age calculation
 IF(IsNull(birth_date), Null(),
-    Floor((Today() - birth_date) / 365.25)) AS [Person.Age]
+    Age(Today(), birth_date)) AS [Person.Age]
 
 // Days since last order
 IF(IsNull(last_order_date), Null(),
@@ -251,7 +251,7 @@ LOAD
     region                                                AS [Customer.Region],
     segment                                               AS [Customer.Segment],
     IF(IsNull(birth_date), Null(),
-        Floor((Today() - birth_date) / 365.25))           AS [Customer.Age],
+        Age(Today(), birth_date))                         AS [Customer.Age],
     $(vDualBool(is_active, Active, Inactive))             AS [Customer.IsActive]
 RESIDENT [_RawCustomers];
 

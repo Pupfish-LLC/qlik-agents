@@ -77,7 +77,11 @@ SUB CheckError(vCheckPhase, vCheckAction, vCheckCritical, vPreErrorCount)
                 STORE [_ReloadLog] INTO [$(vLogQvdPath)] (qvd);
             END IF
 
-            EXIT SCRIPT;
+            // Qlik Cloud: Exit Error fails the reload, and the app keeps its previous data.
+            EXIT ERROR 'Stopping reload due to critical error';
+            // Qlik Sense client-managed: if Exit Error is not available in your version,
+            // use EXIT SCRIPT; instead. EXIT SCRIPT ends the reload as succeeded, and the
+            // previous data of the app is gone.
         ELSE
             CALL LogMessage('WARNING', '$(vCheckPhase)', '$(vCheckErrorMsg)');
             CALL LogMessage('WARNING', '$(vCheckPhase)', 'Continuing despite error (non-critical)');
@@ -107,7 +111,7 @@ SUB TestConnection(vConnName, vConnLabel)
     SQL SELECT 1 AS _test_result;
 
     IF ScriptErrorCount > $(vPreTestErrors) THEN
-        CALL LogMessage('ERROR', 'Connection', 'Cannot reach $(vConnLabel) via $(vConnName)');
+        CALL LogMessage('ERROR', 'Connection', 'Cannot reach $(vConnLabel)');
         LET vConnectionOK = 0;
     ELSE
         CALL LogMessage('INFO', 'Connection', '$(vConnLabel) connection OK');
@@ -131,7 +135,7 @@ SUB CheckFileExists(vFilePath, vFileLabel)
         CALL LogMessage('INFO', 'FileCheck', '$(vFileLabel) exists (last modified: $(vFileTime))');
     ELSE
         LET vFileExists = 0;
-        CALL LogMessage('WARNING', 'FileCheck', '$(vFileLabel) does not exist at $(vFilePath)');
+        CALL LogMessage('WARNING', 'FileCheck', '$(vFileLabel) does not exist');
     END IF
 END SUB
 

@@ -5,6 +5,8 @@ description: "Section access patterns, row-level security, data reduction, OMIT 
 
 # Qlik Security
 
+> **Caution:** the examples in this skill and in `section-access-patterns.md` are incomplete. Do not use them as written. Qlik Cloud's Section Access page says the security tables are loaded after a `Section Access;` statement, each needs at least an ACCESS field and a field naming the user (USERID or USER.EMAIL), OMIT holds the name of a field to hide for that user rather than a 0 or 1 flag, and all field names and values in Section Access are converted to uppercase. Check the page before writing or reviewing section access: https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Scripting/Security/manage-security-with-section-access.htm
+
 ## Overview
 
 Security in Qlik Sense controls which data users can view. Section Access is the primary mechanism—it filters rows and hides columns at load time, before the user interface loads. Unlike runtime filtering, section access works invisibly: a user with restricted access simply sees a different model. This makes section access powerful but also error-prone; misconfigured access rules often fail silently, appearing to work while exposing or hiding unintended data.
@@ -47,7 +49,7 @@ charlie@acme.com, 0, DEPT_A, NORTH
 **Required columns:**
 - `USER` — Identity of the user (email for Cloud, DOMAIN\Username for client-managed)
 - `OMIT` — Binary (0 or 1) field visibility flag
-- `Reduction columns` — One column per dimension field you want to reduce. Names must match data model field names exactly, case-sensitive. `DepartmentID` is NOT the same as `departmentid`.
+- `Reduction columns` — One column per dimension field you want to reduce. Section Access converts all field names and values to uppercase, so the matching data model field must be uppercase too (`DEPARTMENTID`, not `DepartmentID`).
 
 **STAR row:** The final row with `*` values is the default access rule for any user not explicitly listed. STAR provides a sensible default (often OMIT=0 and all reduction fields `*`). For client-managed apps, STAR is required to provide default access; without it, unlisted users see no data. For Cloud, STAR behavior varies; consult help.qlik.com for current behavior.
 
@@ -72,7 +74,7 @@ Result: Alice can see only Department rows where [DepartmentID] = 'DEPT_A'
 
 **Row-level facts only:** Fact tables (Orders, Transactions) load completely and unfiltered. Section Access filters which rows are *visible* based on the dimension associations. Dimension tables filter directly.
 
-**Critical gotcha—case sensitivity:** Reduction field names must match the data model field names exactly, character-for-character. A Section Access table with `DepartmentID` will fail silently (user sees all data) if the model field is named `departmentid`. Qlik does not error; it simply skips the association. This is the #1 silent failure in section access.
+**Critical gotcha—uppercase:** All field names and field values in Section Access are converted to uppercase. A Section Access column `DepartmentID` becomes `DEPARTMENTID`, so it links only to a data model field named `DEPARTMENTID` with uppercase values, not to `DepartmentID` or `departmentid`.
 
 ---
 
@@ -132,7 +134,7 @@ data_analyst@acme.com, 1, *, SSN, *
 
 ## 6. Anti-Patterns and Common Pitfalls
 
-**Case-sensitivity errors:** Section Access reduction field names must match data model field names exactly. `DepartmentID` vs. `departmentid` causes silent failure—Qlik skips the association, and the user sees all data. Use the same casing everywhere.
+**Case errors:** Section Access converts field names and values to uppercase, so a data model field `DepartmentID` or `departmentid` does not match it. Use uppercase reduction field names and values in the data model.
 
 **Missing STAR row (client-managed only):** Client-managed apps without a STAR row deny access to all users not explicitly listed. Every user needs an entry or must match STAR. Always include STAR as the final row with sensible defaults.
 

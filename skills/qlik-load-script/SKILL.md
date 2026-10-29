@@ -22,7 +22,7 @@ These SQL constructs do NOT exist in Qlik LOAD statements. Using them causes rel
 | `BETWEEN` | Not a keyword | `field >= low AND field <= high` |
 | `IN (list)` | Not supported | `Match(field, v1, v2)` or `WildMatch()` |
 | `CASE WHEN` | Not a keyword | `IF()`, `Pick()`, or `Match()` |
-| `LIMIT` | Not a keyword | `WHERE RowNo() <= N` on RESIDENT |
+| `LIMIT` | Not a keyword | `First N` prefix (`First 10 LOAD ...`) on RESIDENT |
 | Table aliases (`FROM t1`) | Not supported in LOAD | Full table names in brackets |
 
 **Exception:** `SQL SELECT` pass-through statements to database connections CAN use native SQL syntax including all of the above. The constraint applies only to LOAD/RESIDENT operations.
@@ -105,7 +105,7 @@ Two LOAD statements sharing one source. The inner LOAD executes first. The outer
 LOAD *, IF([Age] < 18, 'Minor', 'Adult') AS [Age.Category]
 ;
 LOAD
-    Floor((Today() - birth_date) / 365.25) AS [Age],
+    Age(Today(), birth_date) AS [Age],
     other_field
 RESIDENT [_Source];
 ```
@@ -182,14 +182,14 @@ QVD files support two read modes. Optimized read is ~10x faster than standard QV
 - Field renaming with `AS` (e.g., `source_col AS [New.Name]`)
 - `LOAD DISTINCT`
 - `CONCATENATE` load
-- One-parameter `EXISTS(field)` / `NOT EXISTS(field)` (single field name, no second argument)
+- One-parameter `EXISTS(field)` / `NOT EXISTS(field)`: not stated on Qlik's QVD or Exists pages, and Qlik's incremental load page says its `WHERE NOT Exists(PrimaryKey)` pattern forces standard mode. Often much faster than other WHERE clauses; measure on your data
 - Preceding LOAD above the QVD LOAD (the inner QVD read remains optimized; the preceding load processes in-memory after the fast read)
 
 **What forces standard read:**
 - Transformations or functions on fields (e.g., `Upper(name)`, `Date#(date_field)`)
 - Derived/calculated fields (e.g., `field1 & '-' & field2 AS CompositeKey`)
 - Two-parameter `EXISTS(field, expression)` (the expression form)
-- WHERE clauses other than one-parameter EXISTS (e.g., `WHERE amount > 0`)
+- WHERE clauses (e.g., `WHERE amount > 0`; for one-parameter EXISTS, see above)
 - `Map...Using` applied to fields being loaded
 - `MAPPING LOAD` from QVD
 
@@ -201,7 +201,7 @@ LOAD * FROM [lib://QVDs/Customers.qvd] (qvd);
 LOAD customer_id AS [Customer.Key], name AS [Customer.Name]
 FROM [lib://QVDs/Customers.qvd] (qvd);
 
-// Optimized -- one-parameter NOT EXISTS:
+// Often much faster, not documented as optimized -- one-parameter NOT EXISTS (measure):
 LOAD * FROM [lib://QVDs/Orders.qvd] (qvd)
 WHERE NOT EXISTS([Order.Key]);
 

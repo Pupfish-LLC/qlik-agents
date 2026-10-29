@@ -123,7 +123,7 @@ Every expression using set analysis must follow this protocol. Include in the ca
 - Negation trap: `-=` is exclusion, not negation. `{<Status-={}>}` (empty exclusion) means "exclude nothing" = include all
 
 **Cross-selection (empty assignment ignoring current selection):**
-- `{<Region={}>}` — overrides current selection on Region. The expression evaluates with ALL Region values visible (user's Region selection is ignored).
+- `{<Region=>}` — overrides current selection on Region. The expression evaluates with ALL Region values visible (user's Region selection is ignored).
 - Use case: show a metric for all regions while the user has filtered to one region. Common in "compare to all" patterns.
 
 **Dollar-sign expansion in set modifiers:**

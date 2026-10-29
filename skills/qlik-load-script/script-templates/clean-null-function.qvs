@@ -66,7 +66,7 @@ SET vCleanNull = IF(IsNull($1) OR Len(Trim($1)) = 0
 //
 // For date ARITHMETIC (age, duration), wrap the entire calculation:
 //   IF(IsNull($(vCleanDate(birth_date))), Null(),
-//       Floor((Today() - $(vCleanDate(birth_date))) / 365.25))
+//       Age(Today(), $(vCleanDate(birth_date))))
 //   AS [Person.Age]
 // ============================================================
 SET vCleanDate = IF(IsNull($1) OR Len(Trim($1)) = 0

@@ -38,7 +38,7 @@ Validates script syntax, function usage, block balance, and variable scope. Ensu
     5. `BETWEEN` — rewrite as `field >= low AND field <= high`
     6. `IN (list)` — use `Match(field, val1, val2, ...)` or `WildMatch()`
     7. `CASE WHEN` — use `IF()`, `Pick()`, or `Match()` inside LOAD
-    8. `LIMIT` — use `WHERE RowNo() <= N` on RESIDENT LOAD
+    8. `LIMIT` — use the `First N` prefix (`First 10 LOAD ...`) on RESIDENT LOAD
     9. Table aliases like `FROM table t1` — use full table names in brackets, no aliases
   - Note: `SQL SELECT` pass-through statements to database connections CAN use native SQL syntax (all of above is valid in `SQL SELECT`)
 - **Finding Format:** `[S-1.2]: SQL construct [construct name] in LOAD statement / Severity: Critical / Category: Script Syntax / Location: [file]:[line] / Finding: [construct] is SQL-only syntax, not valid in Qlik LOAD / Impact: Script reload will fail or produce silent data errors / Recommended Fix: Rewrite [line] using Qlik equivalent: [suggested replacement]`
@@ -459,13 +459,13 @@ Validates PII handling, Section Access correctness, and data access control.
 
 - **Severity:** Critical
 - **Applicable Passes:** Phase 4, Phase 7
-- **What to Check:** Section Access reduction field names must match data model field names exactly (case-sensitive)
+- **What to Check:** Section Access converts all field names and values to uppercase, so each reduction field must exist in the data model in uppercase, with uppercase values
 - **How to Verify:**
   - If Section Access present, load Section Access table and final data model
-  - For each reduction field in Section Access, verify exact case-sensitive match in data model
-  - Example: `customer_key` in Section Access must match `customer_key` in model (not `Customer_Key` or `CUSTOMER_KEY`)
+  - For each reduction field in Section Access, verify the data model field has the same name in uppercase
+  - Example: `customer_key` in Section Access becomes `CUSTOMER_KEY`, so the model field must be `CUSTOMER_KEY` (not `customer_key` or `Customer_Key`)
   - Use Data Model Viewer to confirm exact field names
-- **Finding Format:** `[SC-6.3]: Section Access reduction field case mismatch / Severity: Critical / Category: Security / Location: [Section Access table] / Finding: Reduction field [field_in_section_access] does not case-sensitively match [corresponding_model_field] / Impact: Section Access filtering will fail, users may see restricted data / Recommended Fix: Correct Section Access field name to [corrected_name] with exact case match`
+- **Finding Format:** `[SC-6.3]: Section Access reduction field case mismatch / Severity: Critical / Category: Security / Location: [Section Access table] / Finding: Reduction field [field_in_section_access] has no uppercase match in the data model ([corresponding_model_field]) / Impact: Section Access filtering will fail, users may see restricted data / Recommended Fix: Rename the data model field to uppercase [CORRECTED_NAME] and make its values uppercase`
 
 ### 6.4 Section Access Table Completeness
 

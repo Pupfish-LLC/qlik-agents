@@ -191,7 +191,7 @@ Comprehensive review includes all checks from earlier passes PLUS cross-artifact
 REFERENCE qlik-security skill for detailed security checks:
 - Is section access implemented if security requirements exist?
 - Are STAR fields handled correctly?
-- Are reduction fields matching data model field names (case-sensitive)?
+- Are reduction fields matching data model field names in uppercase (Section Access converts field names and values to uppercase)?
 - Are PII fields protected (Phase 2 source profile vs Phase 4 scripts)?
 
 ### Blocked Dependency Audit

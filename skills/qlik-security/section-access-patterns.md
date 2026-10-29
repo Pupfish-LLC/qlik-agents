@@ -58,16 +58,17 @@ FROM [orders.qvd] (qvd);
 
 1. **Wrong case in field name:**
    ```qlik
-   // WRONG: Section Access has 'departmentid' but model has [DepartmentID]
+   // WRONG: model has [DepartmentID], which is not uppercase
    [Section Access]:
    LOAD * INLINE [
-   USER, OMIT, departmentid   // lowercase!
+   USER, OMIT, departmentid   // converted to DEPARTMENTID
    MANUFACTURING\alice, 0, DEPT_001
    ...
    ];
-   // Result: Qlik silently skips the association. alice sees all departments.
+   // Result: Section Access converts all field names and values to uppercase, so
+   // DEPARTMENTID does not match the model field [DepartmentID].
    ```
-   **Fix:** Match case exactly: `DepartmentID` in both Section Access and data model.
+   **Fix:** Name the reduction field in uppercase in the data model (`DEPARTMENTID`), with uppercase values.
 
 2. **Missing STAR row:**
    ```qlik
@@ -395,7 +396,7 @@ When reviewing a Section Access implementation, use this checklist:
 - [ ] Section Access table is loaded LAST in the script (after all data tables)
 - [ ] USER column values match the deployment platform (email for Cloud, DOMAIN\Username for client-managed)
 - [ ] OMIT column present in all rows
-- [ ] Every reduction field name matches a data model field name exactly (case-sensitive)
+- [ ] Every reduction field name matches a data model field name, in uppercase (Section Access converts field names and values to uppercase)
 - [ ] STAR row present (required for client-managed, strongly recommended for Cloud)
 - [ ] STAR row uses sensible defaults (OMIT=0 and * wildcards for client-managed; OMIT=1 and non-existent value for Cloud)
 - [ ] No PII values in reduction fields (no SSN, password, salary as a reduction value)
@@ -410,9 +411,9 @@ When reviewing a Section Access implementation, use this checklist:
 ## Debugging Section Access Issues
 
 **Problem: User sees all data (no filtering)**
-- Check: Section Access field name case (DepartmentID vs departmentid)
+- Check: reduction field names and values are uppercase in the data model (Section Access converts them to uppercase)
 - Check: STAR row is not matching when it should be
-- Check: Reduction field exists in Section Access but not in data model with matching case
+- Check: Reduction field exists in Section Access but not in data model in uppercase
 - Test: Reload with TRACE statements showing field names being loaded
 
 **Problem: User sees no data**

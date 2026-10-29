@@ -30,7 +30,7 @@ The following SQL constructs are NEVER valid in Qlik LOAD or RESIDENT statements
 - **BETWEEN** — Not a keyword. Rewrite as `field >= low AND field <= high`.
 - **IN (list)** — Not supported. Use `Match(field, val1, val2, ...)` or `WildMatch()` instead.
 - **CASE WHEN** — Not a keyword. Use `IF()`, `Pick()`, or `Match()` inside a LOAD statement instead.
-- **LIMIT** — Not a keyword. Use `WHERE RowNo() <= N` on a RESIDENT LOAD instead.
+- **LIMIT** — Not a keyword. Use the `First N` prefix (`First 10 LOAD ...`) on a RESIDENT LOAD instead.
 - **Table aliases** (`FROM table t1`) — Not supported in LOAD. Use full table names in square brackets.
 
 **Exception:** `SQL SELECT` pass-through statements to database connections CAN use native SQL syntax including all of the above. The constraint applies only to LOAD/RESIDENT operations.

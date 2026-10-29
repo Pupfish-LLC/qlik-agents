@@ -25,7 +25,7 @@
 #   - BETWEEN          (range filtering; use >= AND <= instead)
 #   - CASE WHEN        (conditional; use IF(), Pick(), Match() instead)
 #   - IN (list)        (value matching; use Match() or WildMatch() instead)
-#   - LIMIT            (row limiting; use WHERE RowNo() <= N instead)
+#   - LIMIT            (row limiting; use the First N prefix instead)
 #   - Table aliases    (FROM t1; use full table names in brackets instead)
 #   - SELECT DISTINCT  (for LOAD context; use LOAD DISTINCT instead)
 #
@@ -150,7 +150,7 @@ process_file() {
 
         # 6. LIMIT (case-insensitive, word boundaries, followed by number)
         if echo "$line" | grep -iqE '\bLIMIT\s+[0-9]'; then
-            add_finding "$file" "$line_num" "'LIMIT' not supported in Qlik LOAD. Use WHERE RowNo() <= N on a RESIDENT LOAD."
+            add_finding "$file" "$line_num" "'LIMIT' not supported in Qlik LOAD. Use the First N prefix (First 10 LOAD ...) on a RESIDENT LOAD."
         fi
 
         # 7. IN (list) - pattern: IN followed by parentheses

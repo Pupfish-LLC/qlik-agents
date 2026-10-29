@@ -179,7 +179,7 @@ LET vRegionCount = Peek('RegionCount', 0, '_CardinalityCheck');
 DROP TABLE [_CardinalityCheck];
 
 IF $(vRegionCount) < 4 OR $(vRegionCount) > 6 THEN
-    TRACE [WARNING] Customer.Region cardinality is $(vRegionCount); expected 4-6 unique values;
+    TRACE [WARNING] Customer.Region cardinality is $(vRegionCount), expected 4-6 unique values;
 END IF
 ```
 

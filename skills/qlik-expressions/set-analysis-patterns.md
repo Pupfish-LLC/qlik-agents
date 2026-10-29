@@ -13,7 +13,7 @@ Every component is optional. The default set is the current selection (`$`), so 
 ### Set Identifier
 - `$` — Current selection (default if omitted)
 - `1` — All data, ignoring all selections
-- `$1` — Alternate state (field-level bookmarks)
+- `$1` — Previous selection
 - `BookmarkName` — Selections from a saved bookmark
 - Omitted — Defaults to `$` (current selection)
 
@@ -44,7 +44,7 @@ What values to include in the field modifier.
 - **Variable expansion:** `{$(vMyVariable)}` — Variable is expanded into the element set.
 - **Functions:** `{P(Region)}` (possible values in current selection), `{E(Region)}` (excluded values from current selection)
 - **Comparison operators:** `Year={">2020"}` or `Month={">=1<=6"}` — String comparison for date ranges or numbers.
-- **Empty set:** `<Field={}>` — Clears the selection on that field, making it contribute nothing to the aggregation.
+- **Empty set:** `<Field={}>` — Selects nothing on that field, making it contribute nothing to the aggregation. Not the same as `<Field=>`.
 
 ---
 
@@ -88,14 +88,14 @@ Remove values from the base set.
 
 **Scenario:** All sales EXCEPT returns.
 ```
-Sum({<OrderType={'-Returns'}>} [Amount])
+Sum({<OrderType-={'Returns'}>} [Amount])
 ```
 - Start with implicit `$` (current selection)
 - Exclude OrderType = 'Returns'
 
 **Multi-field exclusion:** All orders except those from excluded regions AND excluded customers.
 ```
-Sum({<Region={'-Blacklist'}>*<Customer={'-Blocked'}>} [Amount])
+Sum({<Region-={'Blacklist'}>*<Customer-={'Blocked'}>} [Amount])
 ```
 - Exclude Blacklist regions AND Blocked customers
 - Note the `*` (intersection) to apply both exclusions
@@ -191,11 +191,11 @@ Sum({<Year={$(vCurrentYear)}>} [Amount])
 // Expands to: Sum({<Year={2026}>} [Amount]) [if vCurrentYear=2026]
 ```
 
-**Dynamic computed set:** Include the maximum year in data.
+**Dynamic computed set:** Include the highest selected or possible year (it follows the current selections).
 ```
 Sum({<Year={$(=Max(Year))}>} [Amount])
 // $(=...) forces evaluation, substitutes the result
-// If max year in data is 2026, expands to Sum({<Year={2026}>} [Amount])
+// If the highest possible year is 2026, expands to Sum({<Year={2026}>} [Amount])
 ```
 
 ---
@@ -220,7 +220,7 @@ Sum for the same period last year.
 
 ```
 Sum({<Year={$(=Max(Year)-1)}>} [Amount])
-// Max year in data minus one
+// Highest selected or possible year minus one
 ```
 
 **Prior year same month:**
@@ -384,15 +384,15 @@ Sum({$*<Year={2024}>} [Amount])
 
 ### Anti-Pattern: Wrong Set Operator for the Scenario
 
-**Wrong (intersection when union needed):**
+**Wrong (same field listed twice when union needed):**
 ```
 Sum({<Status={'Active'}, Status={'Inactive'}>} [Amount])
-// Same field with two values, implicit intersection
-// A value cannot be both Active and Inactive
-// Result: Empty set, returns NULL
+// Same field listed twice: the last assignment wins
+// Status={'Active'} is silently ignored
+// Result: the sum for Inactive only
 ```
 
-**What goes wrong:** No data matches. Silent NULL (confusing).
+**What goes wrong:** Only the last assignment counts. Active is dropped silently (confusing).
 
 **Correct (union):**
 ```
@@ -510,7 +510,7 @@ Sum({<Year={2024}>} [Amount])
 **Clarify intent:**
 ```
 // If you want ALL 2024 regardless of other selections:
-Sum({<Year={2024}, Region={}, Customer={}>} [Amount])
+Sum({<Year={2024}, Region=, Customer=>} [Amount])
 // Clears Region and Customer selections for this expression
 
 // If you want 2024 respecting other selections (truly what-if):

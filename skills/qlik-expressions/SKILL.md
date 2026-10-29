@@ -40,7 +40,7 @@ The curly braces `{}` are required. Everything inside is the set modifier.
 **Set identifier (optional, default `$`):**
 - `$` — Current selection (default if omitted)
 - `1` — All data ignoring selections
-- `$1` — Alternate state reference
+- `$1` — Previous selection
 - Bookmark names — Selections from a named bookmark
 
 **Set operator (optional, default intersection):**
@@ -250,10 +250,10 @@ If a sheet condition fails, all calculations on that sheet skip. This saves proc
 
 **Division by zero returns NULL:** `1/0` = NULL (not an error). `5/0` = NULL. This is safe but can hide logic errors.
 
-**Alt() for null coalescing:** `Alt(expression, fallback)` returns fallback if expression is NULL.
+**Alt() for numeric fallbacks:** `Alt(expression, fallback)` returns the first argument that has a valid number, so it returns fallback if expression is NULL or text. It is not SQL's COALESCE().
 ```
 Alt(Sum([Amount]), 0)
-Alt([Customer.Name], 'Unknown')
+IF(IsNull([Customer.Name]), 'Unknown', [Customer.Name])
 ```
 
 **RangeSum() for null-safe addition:** `RangeSum(A, B)` returns the non-null value if one is null. Unlike `A + B` which returns NULL if either is NULL.
