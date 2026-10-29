@@ -63,7 +63,7 @@ A QVD optimized load reads QVD blocks directly into memory, skipping decompressi
 
 - Field renaming with `AS` aliases
 - Loading a subset of fields (you do not need to load all fields)
-- `WHERE Exists(field_name)`, one-parameter form: not stated on Qlik's QVD or Exists pages, and Qlik's incremental load page says its `WHERE NOT Exists(PrimaryKey)` pattern forces standard mode. Often much faster than other WHERE clauses; measure on your data
+- `WHERE Exists(field_name)` — one-parameter form only
 - `LOAD DISTINCT`
 - `CONCATENATE` with another table
 
@@ -72,7 +72,7 @@ A QVD optimized load reads QVD blocks directly into memory, skipping decompressi
 - Any transformation or function call on a field: `Num(id)`, `Upper(name)`, `Date(date_field)`, `ApplyMap()`
 - Adding derived/calculated fields (e.g., `1 AS [Counter]`)
 - Two-parameter `Exists()`: `WHERE Exists(field_name, match_value)`
-- Any WHERE clause (for one-parameter `Exists()`, see above)
+- Any WHERE clause other than one-parameter `Exists()`
 - Aliasing the field used inside `WHERE Exists()` (the Exists field must keep its original name)
 - Loading into a mapping table (`MAPPING LOAD ... FROM qvd`)
 - `Map field_name Using map_table`

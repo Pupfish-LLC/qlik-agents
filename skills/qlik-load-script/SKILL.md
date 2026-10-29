@@ -182,14 +182,14 @@ QVD files support two read modes. Optimized read is ~10x faster than standard QV
 - Field renaming with `AS` (e.g., `source_col AS [New.Name]`)
 - `LOAD DISTINCT`
 - `CONCATENATE` load
-- One-parameter `EXISTS(field)` / `NOT EXISTS(field)`: not stated on Qlik's QVD or Exists pages, and Qlik's incremental load page says its `WHERE NOT Exists(PrimaryKey)` pattern forces standard mode. Often much faster than other WHERE clauses; measure on your data
+- One-parameter `EXISTS(field)` / `NOT EXISTS(field)` (single field name, no second argument)
 - Preceding LOAD above the QVD LOAD (the inner QVD read remains optimized; the preceding load processes in-memory after the fast read)
 
 **What forces standard read:**
 - Transformations or functions on fields (e.g., `Upper(name)`, `Date#(date_field)`)
 - Derived/calculated fields (e.g., `field1 & '-' & field2 AS CompositeKey`)
 - Two-parameter `EXISTS(field, expression)` (the expression form)
-- WHERE clauses (e.g., `WHERE amount > 0`; for one-parameter EXISTS, see above)
+- WHERE clauses other than one-parameter EXISTS (e.g., `WHERE amount > 0`)
 - `Map...Using` applied to fields being loaded
 - `MAPPING LOAD` from QVD
 
@@ -201,7 +201,7 @@ LOAD * FROM [lib://QVDs/Customers.qvd] (qvd);
 LOAD customer_id AS [Customer.Key], name AS [Customer.Name]
 FROM [lib://QVDs/Customers.qvd] (qvd);
 
-// Often much faster, not documented as optimized -- one-parameter NOT EXISTS (measure):
+// Optimized -- one-parameter NOT EXISTS:
 LOAD * FROM [lib://QVDs/Orders.qvd] (qvd)
 WHERE NOT EXISTS([Order.Key]);
 

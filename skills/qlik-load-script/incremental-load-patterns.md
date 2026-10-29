@@ -531,11 +531,11 @@ If a record is created (effective_from = Tuesday) and superseded (effective_to =
 | Pattern | QVD Read Mode | Reason |
 |---|---|---|
 | Insert-only (CONCATENATE, no WHERE) | **Optimized** | No WHERE clause on QVD load |
-| Insert/update (WHERE NOT EXISTS, one-param) | Not documented as optimized | Often much faster than other WHERE clauses; measure |
-| Insert/update/delete (WHERE NOT EXISTS + INNER JOIN) | Not documented as optimized (QVD load) | One-parameter NOT EXISTS on QVD, often much faster; measure. INNER JOIN is a separate operation |
-| Dual-timestamp SCD2 (WHERE NOT EXISTS, one-param) | Not documented as optimized | Often much faster than other WHERE clauses; measure |
+| Insert/update (WHERE NOT EXISTS, one-param) | **Optimized** | One-parameter NOT EXISTS preserves optimized read |
+| Insert/update/delete (WHERE NOT EXISTS + INNER JOIN) | **Optimized** (QVD load) | One-parameter NOT EXISTS on QVD; INNER JOIN is a separate operation |
+| Dual-timestamp SCD2 (WHERE NOT EXISTS, one-param) | **Optimized** | One-parameter NOT EXISTS preserves optimized read |
 
-Qlik's QVD and Exists pages do not say that one-parameter `NOT EXISTS(field)` keeps a QVD read optimized, and Qlik's incremental load page says its `WHERE NOT Exists(PrimaryKey)` pattern forces standard mode. It is often much faster; measure on your data. Two-parameter `NOT EXISTS(field1, field2)` forces standard mode. All incremental patterns above use the one-parameter form.
+One-parameter `NOT EXISTS(field)` preserves optimized QVD read. Two-parameter `NOT EXISTS(field1, field2)` forces standard mode. All incremental patterns above use the one-parameter form.
 
 Standard mode is ~10x faster than loading from the database. Optimized mode is ~10x faster than standard QVD read (~100x faster than database).
 

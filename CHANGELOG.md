@@ -10,7 +10,6 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 - Error-handling template: a critical error now fails the reload in Qlik Cloud instead of ending it as succeeded
 - Age calculations use Age() instead of dividing days by 365.25, which runs a year short for many dates
-- QVD guidance no longer states that a one-field Exists() keeps a QVD read optimized
 - Row limits use the First N prefix instead of WHERE RowNo() <= N, which keeps one row too many after Order By
 - Null-count pattern uses Count(1) instead of Count(*), which fails in a LOAD
 - Set analysis: $1 is the previous selection, an empty set {} selects nothing, and Field= clears a selection
